@@ -18,24 +18,26 @@ class ColorButton:
   def draw(self, window):
     pygame.draw.rect(window, self.color, self.rect)
 
-
+ROWS = 45
+COLS = 50
+SQUARE_SIZE = 8
 WIDTH, HEIGHT = 400, 400
 win = pygame.display.set_mode((WIDTH, HEIGHT))
-win.fill((255, 255, 255))
+win.fill("white")
 
 pygame.display.set_caption("PyPaint")
 
-COLORS = ["red", "green", "blue", "yellow", "purple", "black", "white"]
+COLORS = ["red", "green", "blue", "yellow", "purple", "black"]
 drawing_color = COLORS[5]
-buttons = []
-grid_squares = []
-rows = 45
-cols = 50
-square_size = 8
 
-for i in range(cols):
-  for j in range(rows):
-    square = GridSquare(i*square_size, j*square_size, square_size, square_size)
+grid_squares = []
+buttons = []
+
+clear = pygame.image.load('eraser.png')
+
+for i in range(COLS):
+  for j in range(ROWS):
+    square = GridSquare(i*SQUARE_SIZE, j*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
     grid_squares.append(square)
 
 for i, color in enumerate(COLORS):
@@ -55,15 +57,23 @@ while running:
     if event.type == pygame.MOUSEBUTTONUP:
       drawing = False
   
+  # Render the drawing grid
   for square in grid_squares:
     square.draw(win)
     if drawing and square.rect.collidepoint(pygame.mouse.get_pos()):
       square.color = drawing_color
   
+  # Render the color buttons
   for button in buttons:
     button.draw(win)
-    if button.rect.collidepoint(pygame.mouse.get_pos()):
+    if pygame.mouse.get_pressed()[0] and button.rect.collidepoint(pygame.mouse.get_pos()):
       drawing_color = button.color
+  
+  # Render the clear button
+  clear_rect = clear.get_rect(topleft = (188, 375))
+  win.blit(clear, clear_rect)
+  if pygame.mouse.get_pressed()[0] and clear_rect.collidepoint(pygame.mouse.get_pos()):
+    drawing_color = "white"
 
   clock.tick(30)
   pygame.display.update()
