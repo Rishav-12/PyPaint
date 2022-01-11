@@ -1,5 +1,3 @@
-# TODO: implement a grid-based approach
-
 import pygame
 
 pygame.init()
@@ -17,6 +15,20 @@ class ColorButton:
     self.color = color
   def draw(self, window):
     pygame.draw.rect(window, self.color, self.rect)
+
+def draw_on_grid(is_drawing, current_square):
+  return is_drawing and current_square.rect.collidepoint(pygame.mouse.get_pos())
+
+def pick_color(current_button):
+  return pygame.mouse.get_pressed()[0] and current_button.rect.collidepoint(pygame.mouse.get_pos())
+
+def pick_clear(clear_rect):
+  return pygame.mouse.get_pressed()[0] and clear_rect.collidepoint(pygame.mouse.get_pos())
+
+def reset(grid_squares):
+  for square in grid_squares:
+    square.color = "white"
+
 
 ROWS = 45
 COLS = 50
@@ -56,26 +68,29 @@ while running:
       drawing = True
     if event.type == pygame.MOUSEBUTTONUP:
       drawing = False
-  
+    if event.type == pygame.KEYDOWN:
+      if event.key == pygame.K_SPACE:
+        reset(grid_squares)
+
   # Render the drawing grid
   for square in grid_squares:
     square.draw(win)
-    if drawing and square.rect.collidepoint(pygame.mouse.get_pos()):
+    if draw_on_grid(drawing, square):
       square.color = drawing_color
-  
+
   # Render the color buttons
   for button in buttons:
     button.draw(win)
-    if pygame.mouse.get_pressed()[0] and button.rect.collidepoint(pygame.mouse.get_pos()):
+    if pick_color(button):
       drawing_color = button.color
-  
+
   # Render the clear button
   clear_rect = clear.get_rect(topleft = (188, 375))
   win.blit(clear, clear_rect)
-  if pygame.mouse.get_pressed()[0] and clear_rect.collidepoint(pygame.mouse.get_pos()):
+  if pick_clear(clear_rect):
     drawing_color = "white"
 
-  clock.tick(30)
+  clock.tick(60)
   pygame.display.update()
 
 
